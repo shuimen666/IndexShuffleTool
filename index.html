@@ -149,6 +149,26 @@
             color: #777;
             text-shadow: none;
         }
+
+        .preset-card {
+            margin-top: 15px;
+            background: linear-gradient(135deg, #FF9A8B 0%, #FF6A88 100%);
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 600px) {
+            .result-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .preset-card {
+                width: 150px;
+                height: 80px;
+                font-size: 1.5rem;
+                margin-top: 15px;
+            }
+        }
         
         .key-display {
             background: #eef2ff;
@@ -314,6 +334,14 @@
                 </div>
                 
                 <button id="viewBtn">查看映射结果</button>
+
+                <div class="input-group">
+                    <label for="preset">映射规则预设：</label>
+                    <select id="preset">
+                        <option value="">无预设</option>
+                        <option value="team2">红蓝队分组</option>
+                    </select>
+                </div>
                 
                 <div class="result-container">
                     <div class="card empty" id="resultCard">等待生成结果</div>
@@ -462,9 +490,10 @@
             }
             
             // 查看按钮事件
-            viewBtn.addEventListener('click', function() {
+            viewBtn.addEventListener('click', async function() {
                 const key = keyInput.value.trim().toUpperCase();
                 const playerId = parseInt(playerIdInput.value);
+                const preset = document.getElementById('preset').value;
                 
                 const response = getMappedResult(key, playerId);
                 
@@ -472,7 +501,8 @@
                     resultCard.textContent = response.error;
                     resultCard.className = 'card empty';
                 } else {
-                    resultCard.textContent = response.result;
+                    const result = response.result;
+                    resultCard.textContent = result;
                     resultCard.className = 'card';
                     
                     // 添加动画效果
@@ -480,8 +510,35 @@
                     setTimeout(() => {
                         resultCard.style.transform = 'scale(1)';
                     }, 10);
+
+                    // 处理预设映射
+                    if (preset) {
+                        try {
+                            // 动态加载预设模块
+                            const module = await import(`./mods/${preset}.js`);
+                            const presetResult = module.getResult(result);
+                            
+                            // 显示预设结果
+                            const presetCard = document.getElementById('presetResultCard') || createPresetCard();
+                            presetCard.textContent = presetResult;
+                            presetCard.className = 'card';
+                        } catch (error) {
+                            console.error('加载预设失败:', error);
+                        }
+                    }
                 }
             });
+
+            // 创建预设结果显示卡片
+            function createPresetCard() {
+                const container = document.querySelector('.result-container');
+                const card = document.createElement('div');
+                card.id = 'presetResultCard';
+                card.className = 'card empty';
+                card.textContent = '预设结果';
+                container.appendChild(card);
+                return card;
+            }
             
             // 生成密钥按钮事件
             generateBtn.addEventListener('click', function() {
