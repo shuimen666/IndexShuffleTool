@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>序号打乱映射工具</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #4776E6 0%, #8E54E9 100%);
+            color: white;
+            text-align: center;
+            padding: 25px 20px;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 35px;
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        h2 {
+            color: #4776E6;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #eaeef7;
+            font-size: 1.6rem;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 1.05rem;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #dde4f0;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            border-color: #4776E6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(71, 118, 230, 0.2);
+        }
+        
+        button {
+            background: linear-gradient(90deg, #4776E6 0%, #8E54E9 100%);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            letter-spacing: 0.5px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.15);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .result-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .card {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #4776E6 0%, #8E54E9 100%);
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 4.5rem;
+            font-weight: bold;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s ease;
+        }
+        
+        .card.empty {
+            font-size: 1.2rem;
+            background: #f0f3ff;
+            color: #777;
+            text-shadow: none;
+        }
+        
+        .key-display {
+            background: #eef2ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 1.3rem;
+            text-align: center;
+            word-break: break-all;
+            border: 2px dashed #b8c4ff;
+            color: #4776E6;
+            font-weight: bold;
+        }
+        
+        .copy-btn {
+            background: #2ecc71;
+            margin-top: 15px;
+        }
+        
+        .info-section {
+            background: #eef2ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        h3 {
+            color: #4776E6;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+        
+        .info-content {
+            line-height: 1.7;
+        }
+        
+        .info-content p {
+            margin-bottom: 12px;
+        }
+        
+        .highlight {
+            background: #ffecb3;
+            padding: 2px 6px;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .card {
+                width: 150px;
+                height: 150px;
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>序号打乱映射工具</h1>
+            <p class="subtitle">使用公共密钥和玩家序号获取唯一的打乱映射结果</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="section">
+                <h2>获取映射结果</h2>
+                <div class="input-group">
+                    <label for="key">公共密钥：</label>
+                    <input type="text" id="key" placeholder="请输入8位密钥 (A-Z, 0-9)">
+                </div>
+                
+                <div class="input-group">
+                    <label for="playerId">玩家序号：</label>
+                    <input type="number" id="playerId" placeholder="请输入1-N之间的序号">
+                </div>
+                
+                <button id="viewBtn">查看映射结果</button>
+                
+                <div class="result-container">
+                    <div class="card empty" id="resultCard">等待生成结果</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>生成新密钥</h2>
+                <div class="input-group">
+                    <label for="totalPlayers">玩家总数 (N)：</label>
+                    <input type="number" id="totalPlayers" placeholder="请输入玩家数量">
+                </div>
+                
+                <button id="generateBtn">生成密钥</button>
+                
+                <div class="key-display" id="keyDisplay">
+                    密钥将在此处显示
+                </div>
+                
+                <button id="copyBtn" class="copy-btn">复制密钥</button>
+            </div>
+            
+            <div class="info-section">
+                <h3>使用说明</h3>
+                <div class="info-content">
+                    <p>1. 组织者使用<b class="highlight">生成密钥</b>功能，输入玩家总数 <b class="highlight">N</b> 生成公共密钥</p>
+                    <p>2. 将生成的密钥分发给所有玩家</p>
+                    <p>3. 每位玩家在<b class="highlight">获取映射结果</b>部分输入公共密钥和自己的序号（1-N）</p>
+                    <p>4. 点击<b class="highlight">查看映射结果</b>按钮获取唯一的打乱映射结果</p>
+                    <p>5. 每个玩家将获得1-N范围内的唯一结果，且不同玩家结果不同</p>
+                    <p>6. 同一个密钥和序号组合总是产生相同结果</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>序号打乱映射工具 &copy; 2023 | 安全可靠的随机分配方案</p>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            const keyInput = document.getElementById('key');
+            const playerIdInput = document.getElementById('playerId');
+            const viewBtn = document.getElementById('viewBtn');
+            const resultCard = document.getElementById('resultCard');
+            const totalPlayersInput = document.getElementById('totalPlayers');
+            const generateBtn = document.getElementById('generateBtn');
+            const keyDisplay = document.getElementById('keyDisplay');
+            const copyBtn = document.getElementById('copyBtn');
+            
+            // 生成随机密钥（8位 A-Z0-9）
+            function generateKey(totalPlayers) {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let key = '';
+                
+                // 生成8位随机字符
+                for (let i = 0; i < 8; i++) {
+                    key += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                
+                // 将总玩家数编码到密钥中（使用Base36编码）
+                const encodedN = totalPlayers.toString(36).toUpperCase().padStart(4, '0');
+                return encodedN + key;
+            }
+            
+            // 从密钥中解码总玩家数
+            function decodeTotalPlayers(key) {
+                if (key.length < 4) return 0;
+                const encodedN = key.substring(0, 4);
+                return parseInt(encodedN, 36);
+            }
+            
+            // 确定性伪随机数生成器（基于种子）
+            function seededRandom(seed) {
+                let value = seed;
+                return function() {
+                    value = (value * 9301 + 49297) % 233280;
+                    return value / 233280;
+                };
+            }
+            
+            // 生成打乱映射
+            function generateMapping(key, totalPlayers) {
+                // 创建1到N的数组
+                const arr = Array.from({length: totalPlayers}, (_, i) => i + 1);
+                
+                // 创建基于密钥的随机数生成器
+                let seed = 0;
+                for (let i = 0; i < key.length; i++) {
+                    seed = (seed * 31 + key.charCodeAt(i)) & 0xFFFFFFFF;
+                }
+                const random = seededRandom(seed);
+                
+                // Fisher-Yates 洗牌算法
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+                
+                return arr;
+            }
+            
+            // 获取映射结果
+            function getMappedResult(key, playerId) {
+                const totalPlayers = decodeTotalPlayers(key);
+                
+                if (key.length !== 12) {
+                    return {error: '密钥长度必须为12位'};
+                }
+                
+                if (!/^[0-9A-Z]{12}$/.test(key)) {
+                    return {error: '密钥只能包含大写字母和数字'};
+                }
+                
+                if (isNaN(playerId) || playerId < 1 || playerId > totalPlayers) {
+                    return {error: `玩家序号必须为1-${totalPlayers}之间的数字`};
+                }
+                
+                const mapping = generateMapping(key, totalPlayers);
+                return {result: mapping[playerId - 1]};
+            }
+            
+            // 查看按钮事件
+            viewBtn.addEventListener('click', function() {
+                const key = keyInput.value.trim().toUpperCase();
+                const playerId = parseInt(playerIdInput.value);
+                
+                const response = getMappedResult(key, playerId);
+                
+                if (response.error) {
+                    resultCard.textContent = response.error;
+                    resultCard.className = 'card empty';
+                } else {
+                    resultCard.textContent = response.result;
+                    resultCard.className = 'card';
+                    
+                    // 添加动画效果
+                    resultCard.style.transform = 'scale(0.9)';
+                    setTimeout(() => {
+                        resultCard.style.transform = 'scale(1)';
+                    }, 10);
+                }
+            });
+            
+            // 生成密钥按钮事件
+            generateBtn.addEventListener('click', function() {
+                const totalPlayers = parseInt(totalPlayersInput.value);
+                
+                if (isNaN(totalPlayers) || totalPlayers < 1 || totalPlayers > 9999) {
+                    keyDisplay.textContent = '请输入1-9999之间的玩家数量';
+                    keyDisplay.style.color = '#e74c3c';
+                    return;
+                }
+                
+                const key = generateKey(totalPlayers);
+                keyDisplay.textContent = key;
+                keyDisplay.style.color = '#4776E6';
+            });
+            
+            // 复制按钮事件
+            copyBtn.addEventListener('click', function() {
+                const text = keyDisplay.textContent;
+                
+                if (!text || text === '密钥将在此处显示' || text.includes('请输入')) {
+                    return;
+                }
+                
+                // 创建临时textarea进行复制
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                // 显示复制成功反馈
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✓ 已复制!';
+                copyBtn.style.background = '#27ae60';
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.style.background = '';
+                }, 2000);
+            });
+            
+            // 输入验证
+            keyInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            });
+            
+            totalPlayersInput.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '');
+            });
+            
+            playerIdInput.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '');
+            });
+        });
+    </script>
+</body>
+</html>
