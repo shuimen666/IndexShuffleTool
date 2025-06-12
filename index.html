@@ -295,6 +295,83 @@
             font-size: 0.9rem;
             border-top: 1px solid #eee;
         }
+
+        /* 自定义下拉框容器 */
+        .custom-select {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-select::after {
+            content: "▼";
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            color: #4776E6;
+            font-size: 0.8rem;
+            pointer-events: none;
+        }
+
+        /* 下拉框主体样式 */
+        .custom-select select {
+            width: 100%;
+            padding: 14px;
+            padding-right: 40px; /* 为箭头留空间 */
+            border: 2px solid #dde4f0;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            background-color: white;
+            appearance: none; /* 隐藏默认下拉箭头 */
+            background: linear-gradient(to bottom, #ffffff 0%, #f8faff 100%);
+            color: #555;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) inset;
+        }
+
+        /* 下拉框悬停效果 */
+        .custom-select select:hover {
+            border-color: #a0b5f0;
+            background: linear-gradient(to bottom, #ffffff 0%, #f0f4ff 100%);
+        }
+
+        /* 下拉框焦点效果 */
+        .custom-select select:focus {
+            border-color: #4776E6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(71, 118, 230, 0.2);
+            background: linear-gradient(to bottom, #ffffff 0%, #e7eeff 100%);
+        }
+
+        /* 下拉选项样式 */
+        .custom-select option {
+            padding: 12px 15px;
+            background-color: white;
+            color: #555;
+            font-size: 1rem;
+        }
+
+        /* 分组标题样式 */
+        .custom-select optgroup {
+            font-weight: bold;
+            padding: 8px 10px;
+            background-color: #f0f4ff;
+            color: #4776E6;
+            font-size: 1rem;
+        }
+
+        /* 下拉选项悬停效果 */
+        .custom-select option:hover {
+            background: linear-gradient(to right, #4776E6 0%, #8E54E9 100%) !important;
+            color: white !important;
+        }
+
+        /* 选项选中样式 */
+        .custom-select option:checked {
+            background: linear-gradient(to right, #4776E6 0%, #8E54E9 100%);
+            color: rgb(236, 139, 11);
+        }
         
         @media (max-width: 600px) {
             .container {
@@ -324,6 +401,17 @@
                 height: 45px;
                 font-size: 1rem;
             }
+
+            .custom-select select {
+                padding: 12px;
+                padding-right: 35px;
+                font-size: 1rem;
+            }
+            
+            .custom-select::after {
+                right: 12px;
+                font-size: 0.7rem;
+            }
         }
     </style>
 </head>
@@ -351,11 +439,13 @@
 
                 <div class="input-group">
                     <label for="preset">映射规则预设：</label>
-                    <select id="preset">
-                        <option value="">无预设</option>
-                        <option value="team2">红蓝队分组</option>
-                        <option value="team2_mole">红蓝队+内鬼</option>
-                    </select>
+                    <div class="custom-select">
+                        <select id="preset">
+                            <option value="">无预设</option>
+                            <option value="team2">红蓝队分组</option>
+                            <option value="team2_mole">红蓝队+内鬼</option>
+                        </select>
+                    </div>
                 </div>
                 
                 <div class="result-container">
