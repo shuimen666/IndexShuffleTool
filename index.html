@@ -197,6 +197,63 @@
             font-weight: 500;
         }
         
+        .key-info {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .key-info h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+        
+        .key-structure {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        
+        .key-part {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            margin: 0 5px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .player-count {
+            background: #ffcc80;
+        }
+        
+        .random-part {
+            background: #c5e1a5;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+        
         .footer {
             text-align: center;
             padding: 20px;
@@ -227,6 +284,12 @@
                 height: 150px;
                 font-size: 3.5rem;
             }
+            
+            .key-part {
+                width: 45px;
+                height: 45px;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
@@ -234,7 +297,7 @@
     <div class="container">
         <header>
             <h1>序号打乱映射工具</h1>
-            <p class="subtitle">使用公共密钥和玩家序号获取唯一的打乱映射结果</p>
+            <p class="subtitle">使用6位密钥和玩家序号获取唯一的打乱映射结果</p>
         </header>
         
         <div class="main-content">
@@ -242,7 +305,7 @@
                 <h2>获取映射结果</h2>
                 <div class="input-group">
                     <label for="key">公共密钥：</label>
-                    <input type="text" id="key" placeholder="请输入8位密钥 (A-Z, 0-9)">
+                    <input type="text" id="key" maxlength="6" placeholder="请输入6位密钥 (A-Z, 0-9)">
                 </div>
                 
                 <div class="input-group">
@@ -261,7 +324,7 @@
                 <h2>生成新密钥</h2>
                 <div class="input-group">
                     <label for="totalPlayers">玩家总数 (N)：</label>
-                    <input type="number" id="totalPlayers" placeholder="请输入玩家数量">
+                    <input type="number" id="totalPlayers" min="1" max="35" placeholder="请输入玩家数量 (1-35)">
                 </div>
                 
                 <button id="generateBtn">生成密钥</button>
@@ -276,9 +339,9 @@
             <div class="info-section">
                 <h3>使用说明</h3>
                 <div class="info-content">
-                    <p>1. 组织者使用<b class="highlight">生成密钥</b>功能，输入玩家总数 <b class="highlight">N</b> 生成公共密钥</p>
+                    <p>1. 组织者使用<b class="highlight">生成密钥</b>功能，输入玩家总数 <b class="highlight">N</b> (1-35) 生成6位密钥</p>
                     <p>2. 将生成的密钥分发给所有玩家</p>
-                    <p>3. 每位玩家在<b class="highlight">获取映射结果</b>部分输入公共密钥和自己的序号（1-N）</p>
+                    <p>3. 每位玩家在<b class="highlight">获取映射结果</b>部分输入6位密钥和自己的序号（1-N）</p>
                     <p>4. 点击<b class="highlight">查看映射结果</b>按钮获取唯一的打乱映射结果</p>
                     <p>5. 每个玩家将获得1-N范围内的唯一结果，且不同玩家结果不同</p>
                     <p>6. 同一个密钥和序号组合总是产生相同结果</p>
@@ -287,7 +350,7 @@
         </div>
         
         <div class="footer">
-            <p>序号打乱映射工具 &copy; 2023 | 安全可靠的随机分配方案</p>
+            <p>序号打乱映射工具 &copy; 2025 | Shuimen</p>
         </div>
     </div>
     
@@ -303,26 +366,45 @@
             const keyDisplay = document.getElementById('keyDisplay');
             const copyBtn = document.getElementById('copyBtn');
             
-            // 生成随机密钥（8位 A-Z0-9）
+            // 生成随机密钥（6位：首位表示玩家总数，后5位随机）
             function generateKey(totalPlayers) {
                 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
                 let key = '';
                 
-                // 生成8位随机字符
-                for (let i = 0; i < 8; i++) {
+                // 第一位：玩家总数编码 (1-9用数字, 10-35用字母)
+                if (totalPlayers <= 9) {
+                    key += totalPlayers;
+                } else {
+                    // A=10, B=11, ..., Z=35
+                    key += String.fromCharCode(65 + (totalPlayers - 10));
+                }
+                
+                // 生成5位随机字符
+                for (let i = 0; i < 5; i++) {
                     key += chars.charAt(Math.floor(Math.random() * chars.length));
                 }
                 
-                // 将总玩家数编码到密钥中（使用Base36编码）
-                const encodedN = totalPlayers.toString(36).toUpperCase().padStart(4, '0');
-                return encodedN + key;
+                return key;
             }
             
             // 从密钥中解码总玩家数
             function decodeTotalPlayers(key) {
-                if (key.length < 4) return 0;
-                const encodedN = key.substring(0, 4);
-                return parseInt(encodedN, 36);
+                if (!key || key.length === 0) return 0;
+                
+                const firstChar = key.charAt(0);
+                
+                // 如果是数字，直接返回
+                if (firstChar >= '0' && firstChar <= '9') {
+                    return parseInt(firstChar);
+                }
+                
+                // 如果是字母，转换为数字 (A=10, B=11, ..., Z=35)
+                const charCode = firstChar.charCodeAt(0);
+                if (charCode >= 65 && charCode <= 90) { // A-Z
+                    return charCode - 65 + 10;
+                }
+                
+                return 0; // 无效字符
             }
             
             // 确定性伪随机数生成器（基于种子）
@@ -359,12 +441,16 @@
             function getMappedResult(key, playerId) {
                 const totalPlayers = decodeTotalPlayers(key);
                 
-                if (key.length !== 12) {
-                    return {error: '密钥长度必须为12位'};
+                if (key.length !== 6) {
+                    return {error: '密钥长度必须为6位'};
                 }
                 
-                if (!/^[0-9A-Z]{12}$/.test(key)) {
+                if (!/^[0-9A-Z]{6}$/.test(key)) {
                     return {error: '密钥只能包含大写字母和数字'};
+                }
+                
+                if (totalPlayers < 1 || totalPlayers > 35) {
+                    return {error: '密钥中的玩家总数无效'};
                 }
                 
                 if (isNaN(playerId) || playerId < 1 || playerId > totalPlayers) {
@@ -401,8 +487,8 @@
             generateBtn.addEventListener('click', function() {
                 const totalPlayers = parseInt(totalPlayersInput.value);
                 
-                if (isNaN(totalPlayers) || totalPlayers < 1 || totalPlayers > 9999) {
-                    keyDisplay.textContent = '请输入1-9999之间的玩家数量';
+                if (isNaN(totalPlayers) || totalPlayers < 1 || totalPlayers > 35) {
+                    keyDisplay.textContent = '请输入1-35之间的玩家数量';
                     keyDisplay.style.color = '#e74c3c';
                     return;
                 }
@@ -442,10 +528,16 @@
             // 输入验证
             keyInput.addEventListener('input', function() {
                 this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                if (this.value.length > 6) {
+                    this.value = this.value.substring(0, 6);
+                }
             });
             
             totalPlayersInput.addEventListener('input', function() {
                 this.value = this.value.replace(/\D/g, '');
+                if (parseInt(this.value) > 35) {
+                    this.value = '35';
+                }
             });
             
             playerIdInput.addEventListener('input', function() {
