@@ -136,13 +136,25 @@
             justify-content: center;
             align-items: center;
             color: white;
-            font-size: 4.5rem;
             font-weight: bold;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             transition: all 0.4s ease;
+            /* 新增文本样式 */
+            padding: 15px;
+            text-align: center;
+            word-break: break-word;
+            font-size: 2.5rem; /* 默认字体大小 */
         }
-        
+
+        .card.large-number {
+            font-size: 4.5rem;
+        }
+
+        .card.text-content {
+            font-size: 2rem;
+            line-height: 1.4;
+        }
+
         .card.empty {
             font-size: 1.2rem;
             background: #f0f3ff;
@@ -157,16 +169,18 @@
 
         /* 响应式调整 */
         @media (max-width: 600px) {
-            .result-container {
-                flex-direction: column;
-                align-items: center;
+            .card {
+                width: 150px;
+                height: 150px;
+                font-size: 1.8rem; /* 移动端默认字体 */
             }
             
-            .preset-card {
-                width: 150px;
-                height: 80px;
-                font-size: 1.5rem;
-                margin-top: 15px;
+            .card.large-number {
+                font-size: 3.5rem;
+            }
+            
+            .card.text-content {
+                font-size: 1.6rem;
             }
         }
         
@@ -340,6 +354,7 @@
                     <select id="preset">
                         <option value="">无预设</option>
                         <option value="team2">红蓝队分组</option>
+                        <option value="team2_mole">红蓝队+内鬼</option>
                     </select>
                 </div>
                 
@@ -501,31 +516,27 @@
                     resultCard.textContent = response.error;
                     resultCard.className = 'card empty';
                 } else {
-                    const result = response.result;
-                    resultCard.textContent = result;
-                    resultCard.className = 'card';
+                    let result = response.result;
+                    let className = 'card large-number';
                     
-                    // 添加动画效果
-                    resultCard.style.transform = 'scale(0.9)';
-                    setTimeout(() => {
-                        resultCard.style.transform = 'scale(1)';
-                    }, 10);
-
-                    // 处理预设映射
                     if (preset) {
                         try {
-                            // 动态加载预设模块
                             const module = await import(`./mods/${preset}.js`);
-                            const presetResult = module.getResult(result);
-                            
-                            // 显示预设结果
-                            const presetCard = document.getElementById('presetResultCard') || createPresetCard();
-                            presetCard.textContent = presetResult;
-                            presetCard.className = 'card';
+                            result = module.getResult(result);
+                            className = 'card text-content'; // 改为文本卡片样式
                         } catch (error) {
                             console.error('加载预设失败:', error);
                         }
                     }
+                    
+                    resultCard.textContent = result;
+                    resultCard.className = className;
+                    
+                    // 动画效果
+                    resultCard.style.transform = 'scale(0.9)';
+                    setTimeout(() => {
+                        resultCard.style.transform = 'scale(1)';
+                    }, 10);
                 }
             });
 
