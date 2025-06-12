@@ -314,6 +314,14 @@
                 </div>
                 
                 <button id="viewBtn">查看映射结果</button>
+
+                <div class="input-group">
+                    <label for="modSelector">结果映射规则：</label>
+                    <select id="modSelector">
+                      <option value="none">无（显示数字）</option>
+                      <!-- 动态加载的选项会在这里 -->
+                    </select>
+                  </div>
                 
                 <div class="result-container">
                     <div class="card empty" id="resultCard">等待生成结果</div>
@@ -354,8 +362,60 @@
         </div>
     </div>
     
-    <script>
+    <script type="module">
+        import { getAllMods, getMod } from './mods.js';
+        
+        // 动态加载所有模块
+        async function loadMods() {
+          try {
+            // 动态导入mods目录下的所有文件
+            const modFiles = import.meta.glob('./mods/*.js');
+            
+            for (const path in modFiles) {
+              const mod = await modFiles[path]();
+              if (mod.default) {
+                registerMod(mod.default);
+              }
+            }
+            
+            // 填充下拉选择框
+            populateModSelector();
+          } catch (error) {
+            console.error("加载模块失败:", error);
+          }
+        }
+                    
+        // 填充模块选择器
+        function populateModSelector() {
+            const selector = document.getElementById('modSelector');
+            const mods = getAllMods();
+            
+            mods.forEach(mod => {
+            const option = document.createElement('option');
+            option.value = mod.id;
+            option.textContent = mod.name;
+            selector.appendChild(option);
+            });
+        }
+        
+        // 应用映射规则
+        function applyMod(resultNum) {
+            const modId = document.getElementById('modSelector').value;
+            
+            if (modId === 'none') {
+            return resultNum.toString();
+            }
+            
+            const mod = getMod(modId);
+            if (mod && mod.getResult) {
+            return mod.getResult(resultNum);
+            }
+            
+            return resultNum.toString(); // 默认回退
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            loadMods();
             // 获取DOM元素
             const keyInput = document.getElementById('key');
             const playerIdInput = document.getElementById('playerId');
@@ -472,7 +532,8 @@
                     resultCard.textContent = response.error;
                     resultCard.className = 'card empty';
                 } else {
-                    resultCard.textContent = response.result;
+                    const displayText = applyMod(response.result);
+                    resultCard.textContent = displayText;
                     resultCard.className = 'card';
                     
                     // 添加动画效果
